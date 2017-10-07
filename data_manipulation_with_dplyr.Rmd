@@ -1,13 +1,15 @@
 ---
 title: "Data Manipulation with dplyr"
-output: html_notebook
+output:
+  html_document: default
+  html_notebook: default
 ---
 
 Working with data using the [dplyr package](https://cran.r-project.org/web/packages/dplyr/vignettes/dplyr.html). 
 
 ### Load packages and the iris data set
 
-```{r, warning=FALSE}
+```{r, warning=FALSE, message=FALSE}
 library(dplyr); library(datasets)
 data(iris)
 ```
@@ -19,7 +21,8 @@ glimpse(iris)
 ```
 ### filter()
 Select rows based on logical criteria
-```{r, message=FALSE}
-filter(iris, Sepal.Length > 5.1 | Sepal.Width > 3.5)
+```{r, message=FALSE, warning=FALSE}
+filtered <- filter(iris, Sepal.Length > 5.1 | Sepal.Width > 3.5)
+head(filtered, 10)
 ```
 
