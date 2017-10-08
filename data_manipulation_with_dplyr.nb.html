@@ -195,27 +195,147 @@ data(iris)</code></pre>
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 </div>
+<div id="select" class="section level3">
+<h3>select()</h3>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc2VwYWxfbWVhc3VybWVudHMgPC0gc2VsZWN0KGlyaXMsIFNlcGFsLkxlbmd0aCwgU2VwYWwuV2lkdGgpXG5nbGltcHNlKHNlcGFsX21lYXN1cm1lbnRzKVxuXG5gYGAifQ== -->
+<pre class="r"><code>sepal_measurments &lt;- select(iris, Sepal.Length, Sepal.Width)
+glimpse(sepal_measurments)
+</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<div id="select-with-built-in-filters" class="section level4">
+<h4>select() with built-in filters</h4>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxucGV0YWxfbWVhc3VyZW1lbnRzIDwtIHNlbGVjdChpcmlzLCBzdGFydHNfd2l0aChcIlBldGFsXCIpKVxuZ2xpbXBzZShwZXRhbF9tZWFzdXJlbWVudHMpXG5gYGAifQ== -->
+<pre class="r"><code>petal_measurements &lt;- select(iris, starts_with(&quot;Petal&quot;))
+glimpse(petal_measurements)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<p>Other built-in column filters:<br />
+1. <code>starts_with(&quot;X&quot;)</code>: every name that starts with “X”<br />
+2. <code>ends_with(&quot;X&quot;)</code>: every name that ends with “X”<br />
+3. <code>contains(&quot;X&quot;)</code>: every name that contains “X”<br />
+4. <code>matches(&quot;X&quot;)</code>: every name that matches “X”, where “X” can be a regular expression<br />
+5. <code>num_range(&quot;x&quot;, 1:5)</code>: the variables named x01, x02, x03, x04 and x05<br />
+6. <code>one_of(x)</code>: every name that appears in x, which should be a character vector.</p>
+</div>
+</div>
+<div id="mutate" class="section level3">
+<h3>mutate()</h3>
+<p>Add new columns based on existing</p>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZGYgPC0gbXV0YXRlKGlyaXMsIFBldGFsLlN1bSA9IFBldGFsLkxlbmd0aCArIFBldGFsLldpZHRoKVxuZ2xpbXBzZShkZilcbmBgYCJ9 -->
+<pre class="r"><code>df &lt;- mutate(iris, Petal.Sum = Petal.Length + Petal.Width)
+glimpse(df)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<p>You can create more than one new column, even using newly created columns:</p>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZGYgPC0gbXV0YXRlKGlyaXMsIFNlcGFsLlN1bSA9IFNlcGFsLkxlbmd0aCArIFNlcGFsLldpZHRoLCBQZXRhbC5TdW0gPSBQZXRhbC5MZW5ndGggKyBQZXRhbC5XaWR0aCwgTWVhbi5TdW0gPSAoU2VwYWwuU3VtICsgUGV0YWwuU3VtKS8yKVxuZ2xpbXBzZShkZilcbmBgYCJ9 -->
+<pre class="r"><code>df &lt;- mutate(iris, Sepal.Sum = Sepal.Length + Sepal.Width, Petal.Sum = Petal.Length + Petal.Width, Mean.Sum = (Sepal.Sum + Petal.Sum)/2)
+glimpse(df)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+</div>
 <div id="filter" class="section level3">
 <h3>filter()</h3>
 <p>Select rows based on logical criteria</p>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZmlsdGVyKGlyaXMsIFNlcGFsLkxlbmd0aCA+IDUuMSB8IFNlcGFsLldpZHRoID4gMy41KVxuYGBgIn0= -->
-<pre class="r"><code>filter(iris, Sepal.Length &gt; 5.1 | Sepal.Width &gt; 3.5)</code></pre>
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZmlsdGVyZWQgPC0gZmlsdGVyKGlyaXMsIFNlcGFsLkxlbmd0aCA+IDUuMSB8IFNlcGFsLldpZHRoID4gMy41KVxuZ2xpbXBzZShmaWx0ZXJlZClcbmBgYCJ9 -->
+<pre class="r"><code>filtered &lt;- filter(iris, Sepal.Length &gt; 5.1 | Sepal.Width &gt; 3.5)
+glimpse(filtered)</code></pre>
 <!-- rnb-source-end -->
-<!-- rnb-frame-begin eyJtZXRhZGF0YSI6eyJjbGFzc2VzIjpbImRhdGEuZnJhbWUiXSwibmNvbCI6NSwibnJvdyI6MTE2fSwicmRmIjoiSDRzSUFBQUFBQUFBQnRWWVMwN2JVQlI5Y1Q2UUVFSUlJWVFBN1FySWdDNGdHWFRZUVZVR1plb0dBMWJUSkVvTTdiRGJhSGZDRXBEYVVVZnNncXFvQWhXbHRlTnpuc2d4RnBOT2VKSzV2cjl6UDgvdkU5NjhQTmdySFpTTU1ZN0o1akxHeVlhdk9TZjhrekU1VTR6b0oyT3lhK0ZMUG53cTRSTjA2MlkydXV0Zm92SFYwbzBYczlGdGZJdkdkeXNuWHorYURTc25Yd090MDA3OHlUY1FsM1JOY0N3Kzh0aUczU2JzdHBnUDVDM2lBWDhUZmkzSlp3TitUZGczb1crQXRwZ2ZlUGFocVhMaWdHYzh5MFBQK0Z2TUJ6aE55VmY3WWVQSy9KQnZTWjNNUzNHYVVvZTFZMXptSXp4eDZiY3RkYkxmenlEZmtmcTJRV2xuNTAyK0srTGJmaEVYZWxMV2JlY2RjWjlKdmhxZmRlbThVTDhEL2prbzlUcWZHbWRUNW9ONU1UNTUxcWZ6ci9QSHVwa3Z2aSs3VHN1UXI4QitHZmhWK0syQ3A3NkN2RW1YeEk5NFpmaFRUMXFGWDFYczZLZjR4QzBLWFlTOUE3dUMwQkxvQXVMbTZZZDRHZkRVa3hLWGR2U2pmUTV5NXNGNGxCY2s3cUxJeVZPZlE3d3MrS3prcTNrdlNaNk80REtQbk5SQlh2RzBmdTFmbWozNVJEMHluOFdVT3JSZlJkRnovcGszKzY5OUwwaWVKY0hUdnFmeEZjR3o4eXA5MVA3YlBwQVhtcGU4U3hLZmZVamdHNDdaT3UzOGp2MDZmMko5NXlaV2RuNEpmeDNIVGRncGZ3VktudmczS1hMaWtwK0Mzc1oxMGI1YlE5MDE4RHgvcTlTai9wcmFRODU5aHZ0RFZlejRYWEZmSWs1VmNJbXpSanpKaDNpcjBCT1A5cnkvRUkvN2xPNUxqRlBYdWlSdjR0djlEM3BiaDhodC9VS1pMM0Y0VGpBKzd3OE44ckRuZlVIUFg1NURlaS9pT1Y4WGZOWHJ1VVI3bnNQc2QwdDRlei9ndkhDK1V2TFhjN1loZVpQWGUxZEQ4TmRUL0JQOVEzNzJ2c2srZ0pmN3FlRTZ2Y0I2dUFTOUVIb3A5QWZXSmVsai9xby9UOUdmaTUzcTA5WTcxN255dC9EVGZVRDNFOG9mc3lQL0U3aDNzTmY0M044VWp6UnRYeVB1bGVDd0R0b3JmeTE1a05LZmNUVXY1WVZ5bitlKzJUWFEzOG41Sm5LcjV6bGhIc2FoM040ZmNDOUk0RHZ6ODJIdkQwYnc2WmVTVDBMUFBrNEZMeVA5UmY5c1hPU2JocHVvWnlyK3VmazZFdkdsRCtIdjFPVm9uWnJveCt2L2Y1d24rbVNmL2pQM0Q0bEMzenZ6K3BQd3JUclRRanJ4Z3VIRUJWYzY4OFlUdnpmc0Q4ZVFGTS84OGJFLzhIdXV3T1Y3ZlhkQ05Cdmp5TzBGb2E4eFV6VWZ1Qjg4bXVjaExPOTdJN2ZmZnVVTmpvTVR5SlppMlZ2LzBJcktyNzBnWVJiTDdwc3Q3SSs4bmg4Rm1ZdGNIQTgvdGhrOSt0Q2R6MlkyZ3RndysxZUtLQjI2Z2RzK0dvY3VEeFN5TUJ3Ri9uQVFnam5SZjNjSzRwd1ppMkRsZEJBRlA5enRuWndPM3UvdVJRRk12REtNdkMvalBiajNuby9ENTVoa2daME9tK0VQUEhhMzc3N3orc3d3TEhYaUhsTlhDZXVmbGQ4ZWpmMUJ3Q0pENmFRZERNTW1VaEpPT3lXenNzMzBIK3pmVzRYbUVnQUEifQ== -->
-<div data-pagedtable="false">
-<script data-pagedtable-source type="application/json">
-{"columns":[{"label":["Sepal.Length"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["Sepal.Width"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["Petal.Length"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["Petal.Width"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["Species"],"name":[5],"type":["fctr"],"align":["left"]}],"data":[{"1":"5.0","2":"3.6","3":"1.4","4":"0.2","5":"setosa"},{"1":"5.4","2":"3.9","3":"1.7","4":"0.4","5":"setosa"},{"1":"5.4","2":"3.7","3":"1.5","4":"0.2","5":"setosa"},{"1":"5.8","2":"4.0","3":"1.2","4":"0.2","5":"setosa"},{"1":"5.7","2":"4.4","3":"1.5","4":"0.4","5":"setosa"},{"1":"5.4","2":"3.9","3":"1.3","4":"0.4","5":"setosa"},{"1":"5.7","2":"3.8","3":"1.7","4":"0.3","5":"setosa"},{"1":"5.1","2":"3.8","3":"1.5","4":"0.3","5":"setosa"},{"1":"5.4","2":"3.4","3":"1.7","4":"0.2","5":"setosa"},{"1":"5.1","2":"3.7","3":"1.5","4":"0.4","5":"setosa"},{"1":"4.6","2":"3.6","3":"1.0","4":"0.2","5":"setosa"},{"1":"5.2","2":"3.5","3":"1.5","4":"0.2","5":"setosa"},{"1":"5.2","2":"3.4","3":"1.4","4":"0.2","5":"setosa"},{"1":"5.4","2":"3.4","3":"1.5","4":"0.4","5":"setosa"},{"1":"5.2","2":"4.1","3":"1.5","4":"0.1","5":"setosa"},{"1":"5.5","2":"4.2","3":"1.4","4":"0.2","5":"setosa"},{"1":"5.5","2":"3.5","3":"1.3","4":"0.2","5":"setosa"},{"1":"4.9","2":"3.6","3":"1.4","4":"0.1","5":"setosa"},{"1":"5.1","2":"3.8","3":"1.9","4":"0.4","5":"setosa"},{"1":"5.1","2":"3.8","3":"1.6","4":"0.2","5":"setosa"},{"1":"5.3","2":"3.7","3":"1.5","4":"0.2","5":"setosa"},{"1":"7.0","2":"3.2","3":"4.7","4":"1.4","5":"versicolor"},{"1":"6.4","2":"3.2","3":"4.5","4":"1.5","5":"versicolor"},{"1":"6.9","2":"3.1","3":"4.9","4":"1.5","5":"versicolor"},{"1":"5.5","2":"2.3","3":"4.0","4":"1.3","5":"versicolor"},{"1":"6.5","2":"2.8","3":"4.6","4":"1.5","5":"versicolor"},{"1":"5.7","2":"2.8","3":"4.5","4":"1.3","5":"versicolor"},{"1":"6.3","2":"3.3","3":"4.7","4":"1.6","5":"versicolor"},{"1":"6.6","2":"2.9","3":"4.6","4":"1.3","5":"versicolor"},{"1":"5.2","2":"2.7","3":"3.9","4":"1.4","5":"versicolor"},{"1":"5.9","2":"3.0","3":"4.2","4":"1.5","5":"versicolor"},{"1":"6.0","2":"2.2","3":"4.0","4":"1.0","5":"versicolor"},{"1":"6.1","2":"2.9","3":"4.7","4":"1.4","5":"versicolor"},{"1":"5.6","2":"2.9","3":"3.6","4":"1.3","5":"versicolor"},{"1":"6.7","2":"3.1","3":"4.4","4":"1.4","5":"versicolor"},{"1":"5.6","2":"3.0","3":"4.5","4":"1.5","5":"versicolor"},{"1":"5.8","2":"2.7","3":"4.1","4":"1.0","5":"versicolor"},{"1":"6.2","2":"2.2","3":"4.5","4":"1.5","5":"versicolor"},{"1":"5.6","2":"2.5","3":"3.9","4":"1.1","5":"versicolor"},{"1":"5.9","2":"3.2","3":"4.8","4":"1.8","5":"versicolor"},{"1":"6.1","2":"2.8","3":"4.0","4":"1.3","5":"versicolor"},{"1":"6.3","2":"2.5","3":"4.9","4":"1.5","5":"versicolor"},{"1":"6.1","2":"2.8","3":"4.7","4":"1.2","5":"versicolor"},{"1":"6.4","2":"2.9","3":"4.3","4":"1.3","5":"versicolor"},{"1":"6.6","2":"3.0","3":"4.4","4":"1.4","5":"versicolor"},{"1":"6.8","2":"2.8","3":"4.8","4":"1.4","5":"versicolor"},{"1":"6.7","2":"3.0","3":"5.0","4":"1.7","5":"versicolor"},{"1":"6.0","2":"2.9","3":"4.5","4":"1.5","5":"versicolor"},{"1":"5.7","2":"2.6","3":"3.5","4":"1.0","5":"versicolor"},{"1":"5.5","2":"2.4","3":"3.8","4":"1.1","5":"versicolor"},{"1":"5.5","2":"2.4","3":"3.7","4":"1.0","5":"versicolor"},{"1":"5.8","2":"2.7","3":"3.9","4":"1.2","5":"versicolor"},{"1":"6.0","2":"2.7","3":"5.1","4":"1.6","5":"versicolor"},{"1":"5.4","2":"3.0","3":"4.5","4":"1.5","5":"versicolor"},{"1":"6.0","2":"3.4","3":"4.5","4":"1.6","5":"versicolor"},{"1":"6.7","2":"3.1","3":"4.7","4":"1.5","5":"versicolor"},{"1":"6.3","2":"2.3","3":"4.4","4":"1.3","5":"versicolor"},{"1":"5.6","2":"3.0","3":"4.1","4":"1.3","5":"versicolor"},{"1":"5.5","2":"2.5","3":"4.0","4":"1.3","5":"versicolor"},{"1":"5.5","2":"2.6","3":"4.4","4":"1.2","5":"versicolor"},{"1":"6.1","2":"3.0","3":"4.6","4":"1.4","5":"versicolor"},{"1":"5.8","2":"2.6","3":"4.0","4":"1.2","5":"versicolor"},{"1":"5.6","2":"2.7","3":"4.2","4":"1.3","5":"versicolor"},{"1":"5.7","2":"3.0","3":"4.2","4":"1.2","5":"versicolor"},{"1":"5.7","2":"2.9","3":"4.2","4":"1.3","5":"versicolor"},{"1":"6.2","2":"2.9","3":"4.3","4":"1.3","5":"versicolor"},{"1":"5.7","2":"2.8","3":"4.1","4":"1.3","5":"versicolor"},{"1":"6.3","2":"3.3","3":"6.0","4":"2.5","5":"virginica"},{"1":"5.8","2":"2.7","3":"5.1","4":"1.9","5":"virginica"},{"1":"7.1","2":"3.0","3":"5.9","4":"2.1","5":"virginica"},{"1":"6.3","2":"2.9","3":"5.6","4":"1.8","5":"virginica"},{"1":"6.5","2":"3.0","3":"5.8","4":"2.2","5":"virginica"},{"1":"7.6","2":"3.0","3":"6.6","4":"2.1","5":"virginica"},{"1":"7.3","2":"2.9","3":"6.3","4":"1.8","5":"virginica"},{"1":"6.7","2":"2.5","3":"5.8","4":"1.8","5":"virginica"},{"1":"7.2","2":"3.6","3":"6.1","4":"2.5","5":"virginica"},{"1":"6.5","2":"3.2","3":"5.1","4":"2.0","5":"virginica"},{"1":"6.4","2":"2.7","3":"5.3","4":"1.9","5":"virginica"},{"1":"6.8","2":"3.0","3":"5.5","4":"2.1","5":"virginica"},{"1":"5.7","2":"2.5","3":"5.0","4":"2.0","5":"virginica"},{"1":"5.8","2":"2.8","3":"5.1","4":"2.4","5":"virginica"},{"1":"6.4","2":"3.2","3":"5.3","4":"2.3","5":"virginica"},{"1":"6.5","2":"3.0","3":"5.5","4":"1.8","5":"virginica"},{"1":"7.7","2":"3.8","3":"6.7","4":"2.2","5":"virginica"},{"1":"7.7","2":"2.6","3":"6.9","4":"2.3","5":"virginica"},{"1":"6.0","2":"2.2","3":"5.0","4":"1.5","5":"virginica"},{"1":"6.9","2":"3.2","3":"5.7","4":"2.3","5":"virginica"},{"1":"5.6","2":"2.8","3":"4.9","4":"2.0","5":"virginica"},{"1":"7.7","2":"2.8","3":"6.7","4":"2.0","5":"virginica"},{"1":"6.3","2":"2.7","3":"4.9","4":"1.8","5":"virginica"},{"1":"6.7","2":"3.3","3":"5.7","4":"2.1","5":"virginica"},{"1":"7.2","2":"3.2","3":"6.0","4":"1.8","5":"virginica"},{"1":"6.2","2":"2.8","3":"4.8","4":"1.8","5":"virginica"},{"1":"6.1","2":"3.0","3":"4.9","4":"1.8","5":"virginica"},{"1":"6.4","2":"2.8","3":"5.6","4":"2.1","5":"virginica"},{"1":"7.2","2":"3.0","3":"5.8","4":"1.6","5":"virginica"},{"1":"7.4","2":"2.8","3":"6.1","4":"1.9","5":"virginica"},{"1":"7.9","2":"3.8","3":"6.4","4":"2.0","5":"virginica"},{"1":"6.4","2":"2.8","3":"5.6","4":"2.2","5":"virginica"},{"1":"6.3","2":"2.8","3":"5.1","4":"1.5","5":"virginica"},{"1":"6.1","2":"2.6","3":"5.6","4":"1.4","5":"virginica"},{"1":"7.7","2":"3.0","3":"6.1","4":"2.3","5":"virginica"},{"1":"6.3","2":"3.4","3":"5.6","4":"2.4","5":"virginica"},{"1":"6.4","2":"3.1","3":"5.5","4":"1.8","5":"virginica"},{"1":"6.0","2":"3.0","3":"4.8","4":"1.8","5":"virginica"},{"1":"6.9","2":"3.1","3":"5.4","4":"2.1","5":"virginica"},{"1":"6.7","2":"3.1","3":"5.6","4":"2.4","5":"virginica"},{"1":"6.9","2":"3.1","3":"5.1","4":"2.3","5":"virginica"},{"1":"5.8","2":"2.7","3":"5.1","4":"1.9","5":"virginica"},{"1":"6.8","2":"3.2","3":"5.9","4":"2.3","5":"virginica"},{"1":"6.7","2":"3.3","3":"5.7","4":"2.5","5":"virginica"},{"1":"6.7","2":"3.0","3":"5.2","4":"2.3","5":"virginica"},{"1":"6.3","2":"2.5","3":"5.0","4":"1.9","5":"virginica"},{"1":"6.5","2":"3.0","3":"5.2","4":"2.0","5":"virginica"},{"1":"6.2","2":"3.4","3":"5.4","4":"2.3","5":"virginica"},{"1":"5.9","2":"3.0","3":"5.1","4":"1.8","5":"virginica"}],"options":{"columns":{"min":{},"max":[10],"total":[5]},"rows":{"min":[10],"max":[10],"total":[116]},"pages":{}}}
-  </script>
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<p>The usual logical operators are available inside <code>filter()</code>:</p>
+<ul>
+<li><code>x &lt; y</code><br />
+</li>
+<li><code>x &lt;= y</code><br />
+</li>
+<li><code>x == y</code><br />
+</li>
+<li><code>x != y</code><br />
+</li>
+<li><code>x &gt;= y</code><br />
+</li>
+<li><code>x &gt; y</code><br />
+</li>
+<li><code>x %in% c(a, b, c)</code> ,TRUE if <code>x</code> is in the vector <code>c(a, b, c)</code><br />
+</li>
+<li><code>is.na()</code></li>
+</ul>
+<p>Similarly, the usual boolean operators work inside filter():<br />
+* <code>&amp;</code> (and)<br />
+* <code>|</code> (or)<br />
+* <code>!</code> (not)</p>
+<p>Note <code>&amp;</code> can be replaced by commas. The following are equivalent:<br />
+<code>filter(df, a &gt; 0 &amp; b &gt; 0)</code><br />
+<code>filter(df, a &gt; 0, b &gt; 0)</code></p>
 </div>
-<!-- rnb-frame-end -->
+<div id="summarise" class="section level3">
+<h3>summarise()</h3>
+<p>Apply functions to columns of a dataframe.</p>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc3VtbWFyaXNlKGlyaXMsIG1lYW5fcGV0YWxfbGVuZ3RoID0gbWVhbihQZXRhbC5MZW5ndGgpLCBzZF9wZXRhbF9sZW5ndGggPSBzZChQZXRhbC5MZW5ndGgpKVxuXG5gYGAifQ== -->
+<pre class="r"><code>summarise(iris, mean_petal_length = mean(Petal.Length), sd_petal_length = sd(Petal.Length))
+</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+</div>
+<div id="arrange" class="section level3">
+<h3>arrange()</h3>
+<p>Sorts a dataframe on one or more column, by defualt in ascending order. To sort from highest to lowest, wrap the variable of interest in <code>desc()</code>.</p>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc29ydGVkIDwtIGFycmFuZ2UoaXJpcywgZGVzYyhTZXBhbC5MZW5ndGgpKVxuaGVhZChzb3J0ZWQpXG5gYGAifQ== -->
+<pre class="r"><code>sorted &lt;- arrange(iris, desc(Sepal.Length))
+head(sorted)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<p>Break ties with a second variable:</p>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc29ydGVkMiA8LSBhcnJhbmdlKGlyaXMsIGRlc2MoU2VwYWwuTGVuZ3RoKSwgZGVzYyhQZXRhbC5XaWR0aCkpXG5oZWFkKHNvcnRlZDIpXG5gYGAifQ== -->
+<pre class="r"><code>sorted2 &lt;- arrange(iris, desc(Sepal.Length), desc(Petal.Width))
+head(sorted2)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+</div>
+<div id="pipe-operator" class="section level3">
+<h3>Pipe Operator</h3>
+<p>The pipe operator, <code>%&gt;%</code> enables the chaining together of functions by supplying the output of one function as the first argument to another. It makes code more intuitive to both read and write.</p>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuaXJpcyAlPiVcbiAgZmlsdGVyKFNlcGFsLkxlbmd0aCA+IDcpICU+JVxuICBtdXRhdGUoQXBwcm94LlBldGFsLkFyZWEgPSBQZXRhbC5MZW5ndGggKiBQZXRhbC5XaWR0aCkgJT4lXG4gIHN1bW1hcmlzZShtZWFuID0gbWVhbihBcHByb3guUGV0YWwuQXJlYSksXG4gICAgICAgICAgICBzZCA9IHNkKEFwcHJveC5QZXRhbC5BcmVhKSwgXG4gICAgICAgICAgICBtYXggPSBtYXgoQXBwcm94LlBldGFsLkFyZWEpLFxuICAgICAgICAgICAgbWluID0gbWluKEFwcHJveC5QZXRhbC5BcmVhKSlcbmBgYCJ9 -->
+<pre class="r"><code>iris %&gt;%
+  filter(Sepal.Length &gt; 7) %&gt;%
+  mutate(Approx.Petal.Area = Petal.Length * Petal.Width) %&gt;%
+  summarise(mean = mean(Approx.Petal.Area),
+            sd = sd(Approx.Petal.Area), 
+            max = max(Approx.Petal.Area),
+            min = min(Approx.Petal.Area))</code></pre>
+<!-- rnb-source-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 <!-- rnb-text-end -->
 </div>
 
-<div id="rmd-source-code">LS0tDQp0aXRsZTogIkRhdGEgTWFuaXB1bGF0aW9uIHdpdGggZHBseXIiDQpvdXRwdXQ6DQogIGdpdGh1Yl9kb2N1bWVudDogZGVmYXVsdA0KICBodG1sX25vdGVib29rOiBkZWZhdWx0DQotLS0NCg0KV29ya2luZyB3aXRoIGRhdGEgdXNpbmcgdGhlIFtkcGx5ciBwYWNrYWdlXShodHRwczovL2NyYW4uci1wcm9qZWN0Lm9yZy93ZWIvcGFja2FnZXMvZHBseXIvdmlnbmV0dGVzL2RwbHlyLmh0bWwpLiANCg0KIyMjIExvYWQgcGFja2FnZXMgYW5kIHRoZSBpcmlzIGRhdGEgc2V0DQoNCmBgYHtyLCB3YXJuaW5nPUZBTFNFLCBtZXNzYWdlPUZBTFNFfQ0KbGlicmFyeShkcGx5cik7IGxpYnJhcnkoZGF0YXNldHMpDQpkYXRhKGlyaXMpDQpgYGANCg0KIyMjIEdsaW1wc2UgYXQgaXJpcyBkYXRhDQpgYGB7cn0NCmdsaW1wc2UoaXJpcykNCg0KYGBgDQojIyMgZmlsdGVyKCkNClNlbGVjdCByb3dzIGJhc2VkIG9uIGxvZ2ljYWwgY3JpdGVyaWENCmBgYHtyLCBtZXNzYWdlPUZBTFNFLCB3YXJuaW5nPUZBTFNFfQ0KZmlsdGVyZWQgPC0gZmlsdGVyKGlyaXMsIFNlcGFsLkxlbmd0aCA+IDUuMSB8IFNlcGFsLldpZHRoID4gMy41KQ0KaGVhZChmaWx0ZXJlZCwgMTApDQpgYGANCg0K</div>
+<div id="rmd-source-code">LS0tDQp0aXRsZTogIkRhdGEgTWFuaXB1bGF0aW9uIHdpdGggZHBseXIiDQpvdXRwdXQ6DQogIGdpdGh1Yl9kb2N1bWVudDogZGVmYXVsdA0KICBodG1sX25vdGVib29rOiBkZWZhdWx0DQotLS0NCg0KV29ya2luZyB3aXRoIGRhdGEgdXNpbmcgdGhlIFtkcGx5ciBwYWNrYWdlXShodHRwczovL2NyYW4uci1wcm9qZWN0Lm9yZy93ZWIvcGFja2FnZXMvZHBseXIvdmlnbmV0dGVzL2RwbHlyLmh0bWwpLiANCg0KIyMjIExvYWQgcGFja2FnZXMgYW5kIHRoZSBpcmlzIGRhdGEgc2V0DQoNCmBgYHtyLCB3YXJuaW5nPUZBTFNFLCBtZXNzYWdlPUZBTFNFfQ0KbGlicmFyeShkcGx5cik7IGxpYnJhcnkoZGF0YXNldHMpDQpkYXRhKGlyaXMpDQpgYGANCg0KIyMjIEdsaW1wc2UgYXQgaXJpcyBkYXRhDQpgYGB7cn0NCmdsaW1wc2UoaXJpcykNCg0KYGBgDQojIyMgc2VsZWN0KCkNCmBgYHtyLCBtZXNzYWdlPUZBTFNFLCB3YXJuaW5nPUZBTFNFfQ0Kc2VwYWxfbWVhc3VybWVudHMgPC0gc2VsZWN0KGlyaXMsIFNlcGFsLkxlbmd0aCwgU2VwYWwuV2lkdGgpDQpnbGltcHNlKHNlcGFsX21lYXN1cm1lbnRzKQ0KDQpgYGANCiMjIyMgc2VsZWN0KCkgd2l0aCBidWlsdC1pbiBmaWx0ZXJzDQpgYGB7cn0NCnBldGFsX21lYXN1cmVtZW50cyA8LSBzZWxlY3QoaXJpcywgc3RhcnRzX3dpdGgoIlBldGFsIikpDQpnbGltcHNlKHBldGFsX21lYXN1cmVtZW50cykNCmBgYA0KT3RoZXIgYnVpbHQtaW4gY29sdW1uIGZpbHRlcnM6ICANCjEuIGBzdGFydHNfd2l0aCgiWCIpYDogZXZlcnkgbmFtZSB0aGF0IHN0YXJ0cyB3aXRoICJYIiAgDQoyLiBgZW5kc193aXRoKCJYIilgOiBldmVyeSBuYW1lIHRoYXQgZW5kcyB3aXRoICJYIiAgICANCjMuIGBjb250YWlucygiWCIpYDogZXZlcnkgbmFtZSB0aGF0IGNvbnRhaW5zICJYIiAgDQo0LiBgbWF0Y2hlcygiWCIpYDogZXZlcnkgbmFtZSB0aGF0IG1hdGNoZXMgIlgiLCB3aGVyZSAiWCIgY2FuIGJlIGEgcmVndWxhciBleHByZXNzaW9uICANCjUuIGBudW1fcmFuZ2UoIngiLCAxOjUpYDogdGhlIHZhcmlhYmxlcyBuYW1lZCB4MDEsIHgwMiwgeDAzLCB4MDQgYW5kIHgwNSAgDQo2LiBgb25lX29mKHgpYDogZXZlcnkgbmFtZSB0aGF0IGFwcGVhcnMgaW6geCwgd2hpY2ggc2hvdWxkIGJlIGEgY2hhcmFjdGVyIHZlY3Rvci4gIA0KDQojIyMgbXV0YXRlKCkNCkFkZCBuZXcgY29sdW1ucyBiYXNlZCBvbiBleGlzdGluZw0KYGBge3IsIHdhcm5pbmc9RkFMU0V9DQpkZiA8LSBtdXRhdGUoaXJpcywgUGV0YWwuU3VtID0gUGV0YWwuTGVuZ3RoICsgUGV0YWwuV2lkdGgpDQpnbGltcHNlKGRmKQ0KYGBgDQpZb3UgY2FuIGNyZWF0ZSBtb3JlIHRoYW4gb25lIG5ldyBjb2x1bW4sIGV2ZW4gdXNpbmcgbmV3bHkgY3JlYXRlZCBjb2x1bW5zOg0KYGBge3IsIHdhcm5pbmc9RkFMU0V9DQpkZiA8LSBtdXRhdGUoaXJpcywgU2VwYWwuU3VtID0gU2VwYWwuTGVuZ3RoICsgU2VwYWwuV2lkdGgsIFBldGFsLlN1bSA9IFBldGFsLkxlbmd0aCArIFBldGFsLldpZHRoLCBNZWFuLlN1bSA9IChTZXBhbC5TdW0gKyBQZXRhbC5TdW0pLzIpDQpnbGltcHNlKGRmKQ0KYGBgDQoNCg0KIyMjIGZpbHRlcigpDQpTZWxlY3Qgcm93cyBiYXNlZCBvbiBsb2dpY2FsIGNyaXRlcmlhDQpgYGB7ciwgbWVzc2FnZT1GQUxTRSwgd2FybmluZz1GQUxTRX0NCmZpbHRlcmVkIDwtIGZpbHRlcihpcmlzLCBTZXBhbC5MZW5ndGggPiA1LjEgfCBTZXBhbC5XaWR0aCA+IDMuNSkNCmdsaW1wc2UoZmlsdGVyZWQpDQpgYGANCg0KVGhlIHVzdWFsIGxvZ2ljYWwgb3BlcmF0b3JzIGFyZSBhdmFpbGFibGUgaW5zaWRlIGBmaWx0ZXIoKWA6ICANCg0KKiBgeCA8IHlgICANCiogYHggPD0geWAgIA0KKiBgeCA9PSB5YCAgDQoqIGB4ICE9IHlgICANCiogYHggPj0geWAgIA0KKiBgeCA+IHlgICANCiogYHggJWluJSBjKGEsIGIsIGMpYCAsVFJVRSBpZiBgeGAgaXMgaW4gdGhlIHZlY3RvciBgYyhhLCBiLCBjKWAgIA0KKiBgaXMubmEoKWAgIA0KDQpTaW1pbGFybHksIHRoZSB1c3VhbCBib29sZWFuIG9wZXJhdG9ycyB3b3JrIGluc2lkZSBmaWx0ZXIoKTogIA0KKiBgJmAgKGFuZCkgIA0KKiBgfGAgKG9yKSAgDQoqIGAhYCAobm90KSAgDQoNCk5vdGUgYCZgIGNhbiBiZSByZXBsYWNlZCBieSBjb21tYXMuIFRoZSBmb2xsb3dpbmcgYXJlIGVxdWl2YWxlbnQ6ICANCmBmaWx0ZXIoZGYsIGEgPiAwICYgYiA+IDApYCAgDQpgZmlsdGVyKGRmLCBhID4gMCwgYiA+IDApYCAgDQoNCiMjIyBzdW1tYXJpc2UoKQ0KQXBwbHkgZnVuY3Rpb25zIHRvIGNvbHVtbnMgb2YgYSBkYXRhZnJhbWUuDQpgYGB7cn0NCnN1bW1hcmlzZShpcmlzLCBtZWFuX3BldGFsX2xlbmd0aCA9IG1lYW4oUGV0YWwuTGVuZ3RoKSwgc2RfcGV0YWxfbGVuZ3RoID0gc2QoUGV0YWwuTGVuZ3RoKSkNCg0KYGBgDQoNCg0KIyMjIGFycmFuZ2UoKQ0KU29ydHMgYSBkYXRhZnJhbWUgb24gb25lIG9yIG1vcmUgY29sdW1uLCBieSBkZWZ1YWx0IGluIGFzY2VuZGluZyBvcmRlci4gVG8gc29ydCBmcm9tIGhpZ2hlc3QgdG8gbG93ZXN0LCB3cmFwIHRoZSB2YXJpYWJsZSBvZiBpbnRlcmVzdCBpbiBgZGVzYygpYC4NCmBgYHtyfQ0Kc29ydGVkIDwtIGFycmFuZ2UoaXJpcywgZGVzYyhTZXBhbC5MZW5ndGgpKQ0KaGVhZChzb3J0ZWQpDQpgYGANCkJyZWFrIHRpZXMgd2l0aCBhIHNlY29uZCB2YXJpYWJsZToNCmBgYHtyfQ0Kc29ydGVkMiA8LSBhcnJhbmdlKGlyaXMsIGRlc2MoU2VwYWwuTGVuZ3RoKSwgZGVzYyhQZXRhbC5XaWR0aCkpDQpoZWFkKHNvcnRlZDIpDQpgYGANCg0KIyMjIFBpcGUgT3BlcmF0b3INClRoZSBwaXBlIG9wZXJhdG9yLCBgJT4lYCBlbmFibGVzIHRoZSBjaGFpbmluZyB0b2dldGhlciBvZiBmdW5jdGlvbnMgYnkgc3VwcGx5aW5nIHRoZSBvdXRwdXQgb2Ygb25lIGZ1bmN0aW9uIGFzIHRoZSBmaXJzdCBhcmd1bWVudCB0byBhbm90aGVyLiBJdCBtYWtlcyBjb2RlIG1vcmUgaW50dWl0aXZlIHRvIGJvdGggcmVhZCBhbmQgd3JpdGUuDQpgYGB7cn0NCmlyaXMgJT4lDQogIGZpbHRlcihTZXBhbC5MZW5ndGggPiA3KSAlPiUNCiAgbXV0YXRlKEFwcHJveC5QZXRhbC5BcmVhID0gUGV0YWwuTGVuZ3RoICogUGV0YWwuV2lkdGgpICU+JQ0KICBzdW1tYXJpc2UobWVhbiA9IG1lYW4oQXBwcm94LlBldGFsLkFyZWEpLA0KICAgICAgICAgICAgc2QgPSBzZChBcHByb3guUGV0YWwuQXJlYSksIA0KICAgICAgICAgICAgbWF4ID0gbWF4KEFwcHJveC5QZXRhbC5BcmVhKSwNCiAgICAgICAgICAgIG1pbiA9IG1pbihBcHByb3guUGV0YWwuQXJlYSkpDQpgYGANCg0KDQoNCg0KDQoNCg==</div>
 
 
 
