@@ -111,6 +111,13 @@ iris %>%
 ```
 
 
+### group_by
+
+
+
+### vectorized dplyr
+
+
 
 
 
