@@ -1,0 +1,124 @@
+---
+title: "Data Manipulation with dplyr"
+output:
+  github_document: default
+  html_notebook: default
+---
+
+Working with data using the [dplyr package](https://cran.r-project.org/web/packages/dplyr/vignettes/dplyr.html). 
+
+### Load packages and the iris data set
+
+```{r, warning=FALSE, message=FALSE}
+library(dplyr); library(datasets)
+data(iris)
+```
+
+### Glimpse at iris data
+```{r}
+glimpse(iris)
+
+```
+### select()
+```{r, message=FALSE, warning=FALSE}
+sepal_measurments <- select(iris, Sepal.Length, Sepal.Width)
+glimpse(sepal_measurments)
+
+```
+#### select() with built-in filters
+```{r}
+petal_measurements <- select(iris, starts_with("Petal"))
+glimpse(petal_measurements)
+```
+Other built-in column filters:  
+1. `starts_with("X")`: every name that starts with "X"  
+2. `ends_with("X")`: every name that ends with "X"    
+3. `contains("X")`: every name that contains "X"  
+4. `matches("X")`: every name that matches "X", where "X" can be a regular expression  
+5. `num_range("x", 1:5)`: the variables named x01, x02, x03, x04 and x05  
+6. `one_of(x)`: every name that appears in x, which should be a character vector.  
+
+### mutate()
+Add new columns based on existing
+```{r, warning=FALSE}
+df <- mutate(iris, Petal.Sum = Petal.Length + Petal.Width)
+glimpse(df)
+```
+You can create more than one new column, even using newly created columns:
+```{r, warning=FALSE}
+df <- mutate(iris, Sepal.Sum = Sepal.Length + Sepal.Width, Petal.Sum = Petal.Length + Petal.Width, Mean.Sum = (Sepal.Sum + Petal.Sum)/2)
+glimpse(df)
+```
+
+
+### filter()
+Select rows based on logical criteria
+```{r, message=FALSE, warning=FALSE}
+filtered <- filter(iris, Sepal.Length > 5.1 | Sepal.Width > 3.5)
+glimpse(filtered)
+```
+
+The usual logical operators are available inside `filter()`:  
+
+* `x < y`  
+* `x <= y`  
+* `x == y`  
+* `x != y`  
+* `x >= y`  
+* `x > y`  
+* `x %in% c(a, b, c)` ,TRUE if `x` is in the vector `c(a, b, c)`  
+* `is.na()`  
+
+Similarly, the usual boolean operators work inside filter():  
+* `&` (and)  
+* `|` (or)  
+* `!` (not)  
+
+Note `&` can be replaced by commas. The following are equivalent:  
+`filter(df, a > 0 & b > 0)`  
+`filter(df, a > 0, b > 0)`  
+
+### summarise()
+Apply functions to columns of a dataframe.
+```{r}
+summarise(iris, mean_petal_length = mean(Petal.Length), sd_petal_length = sd(Petal.Length))
+
+```
+
+
+### arrange()
+Sorts a dataframe on one or more column, by defualt in ascending order. To sort from highest to lowest, wrap the variable of interest in `desc()`.
+```{r}
+sorted <- arrange(iris, desc(Sepal.Length))
+head(sorted)
+```
+Break ties with a second variable:
+```{r}
+sorted2 <- arrange(iris, desc(Sepal.Length), desc(Petal.Width))
+head(sorted2)
+```
+
+### Pipe Operator
+The pipe operator, `%>%` enables the chaining together of functions by supplying the output of one function as the first argument to another. It makes code more intuitive to both read and write.
+```{r}
+iris %>%
+  filter(Sepal.Length > 7) %>%
+  mutate(Approx.Petal.Area = Petal.Length * Petal.Width) %>%
+  summarise(mean = mean(Approx.Petal.Area),
+            sd = sd(Approx.Petal.Area), 
+            max = max(Approx.Petal.Area),
+            min = min(Approx.Petal.Area))
+```
+
+
+### group_by
+
+
+
+### vectorized dplyr
+
+
+
+
+
+

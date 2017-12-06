@@ -1,0 +1,8 @@
+.Rmd
+*/.Rmd/*
+**/*.Rmd/
+.r_cache/
+*/.r_cache/*
+**.r_cache/
+/*_cache/
+/cache/

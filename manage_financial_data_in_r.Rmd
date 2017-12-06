@@ -1,0 +1,567 @@
+---
+title: "Getting and Managing Financial Data in R"
+output: github_document
+---
+
+This document describes how to get and manage financial data in R, from a variety of (free!) soruces.  
+
+Via `quantmod::getSymbols(Symbols = symbols, src = source, auto.assign = TRUE)` we have access to data from multiple sources via a convenient and extensible function. `symbols` is a single ticker/symbol/economic timeseries, or a character vector of the same.  
+
+`src` is the source of the data. `getSymbols()` can access data from: 
+
+* Yahoo Finance  
+* Google Finance  
+* Alpha Vantage  
+* Oanda (for foreign exchange data - last 180 days only)  
+* Federal Reserve Economic Database (FRED - for economic timeseries)  
+* CSV files  
+* MySQL, SQLite  
+* Rdata, rds  
+
+The default `src` is `"yahoo"`  
+
+By default, `getSymbols()` loads data diectly into the current seesion and assigns the data to an object with the same name as the symbol. To assign the data to an object of your choosing, set `auto.assign` to `FALSE`  
+
+By default, `getSymbols()` returns an `xts` (extensible time series) object.  
+
+# Preliminaries: Getting, Insepcting, Plotting Data
+
+```{r, message=FALSE, warning=FALSE}
+library(quantmod); library(Quandl)
+```
+
+## Load some data from Yahoo
+```{r, message=FALSE, results='hide', cache=TRUE}
+symbols <- c('IBM', 'MSFT')
+getSymbols(symbols)
+```
+## Display information about downloaded data
+```{r, cache=TRUE}
+str(IBM)
+head(MSFT)
+```
+
+## Import QQQ data from Google Finance
+
+```{r, message=FALSE, results='hide', cache=TRUE}
+getSymbols(Symbols='QQQ', src='google')
+
+```
+```{r, cache=TRUE}
+str(QQQ)
+```
+
+## Get some data from Alpha Vantage
+First, go get an API key. Then supply it as an argument to `getSymbols()`
+```{r, cache=TRUE, results='hide'}
+getSymbols("NVDA", src = "av", api.key = "42MRB3A65R28LMCY")
+
+```
+
+## Import GDP data from FRED
+```{r, message=FALSE, results='hide', cache=TRUE}
+getSymbols(Symbols='GDP', src='FRED')
+```
+```{r, cache=TRUE}
+str(GDP)
+```
+## Retrieve specific columns
+```{r, cache=TRUE}
+close <- Cl(NVDA)
+head(close)
+```
+## Percent change, open to close
+```{r, cache=TRUE}
+pc_day_change <- OpCl(NVDA)
+head(pc_day_change)
+```
+
+## Subsetting
+```{r, cache=TRUE, results='hide'}
+NVDA['2017'] # all data for 2017
+NVDA['2017-01'] # all daya for January of 2017 
+NVDA['2017-06::2017-09-15'] # June 2017 through September 15 2017
+```
+
+## Simple bar chart
+```{r, cache=TRUE}
+barChart(NVDA['2017-06::2017-09-15'])
+```
+
+## Candle chart with technical indicator
+```{r, cache=TRUE}
+chartSeries(NVDA['2017-06::2017-09-15'], up.col='steelblue', dn.col='white')
+addBBands()
+```
+
+## Retrieve data from quandl
+https://quandl.com/. Some free datasets, others are paid.  `Quandl::Quandl(code=src/symbol, type="xts")` always **returns **(not loads). Returns data frame by default
+
+Sign up and get a free Quandl API key. Then do `Quandl.api_key('your_key')` to set you Quandl API key. Without a key, you are limited to 50 calls to the API per day. 
+
+
+### Download CME data for CL and BZ as an xts object
+```{r, eval = FALSE}
+oil_data <- Quandl(code = c("CME/CLH2016", "CME/BZH2016"), type = "xts")
+colnames(oil_data)
+cl_open <- getPrice(oil_data, symbol = "CLH2016", prefer = "Open$") # The dollar sign is a regular expression to prevent you from also retrieving 'Open Interest'.
+cl_open["2016-01"]
+
+```
+# Advanced Tools and Techniques
+
+## How to get a single column from many instruments (USEFUL!!)
+```{r, cache=TRUE}
+# Symbols
+symbols <- c("AAPL", "MSFT", "IBM")
+
+# Create new environment
+data_env <- new.env()
+
+# Load symbols into data_env
+getSymbols(symbols, env=data_env)
+
+# Extract the close column from each object and combine into one xts object
+close_data <- do.call(merge, eapply(data_env, Cl))
+
+# View the head of close_data
+head(close_data)
+```
+
+## Manage clashing symbols and invalid R names 
+Some symbols are not valid R names. Syntactically valid names contain letters, numbers, ".", and "_", and must start with a letter or a "." followed by a non-number.
+
+Berkshire Hathaway class A shares is one such example: "BRK-A" is not a syntactically valid name because it contains a "-" character. Similarly many Chinese stocks are problematic because they have symbols composed of numbers. The Yahoo Finance symbol for the SSE Composite Index is "000001.SS".
+
+Use the `get()` function or backticks (`) to access objects that do not have syntactically valid names.
+
+```{r, cache=TRUE}
+# Load BRK-A data
+getSymbols('BRK-A')
+
+# Use backticks and head() to look at the loaded data
+head(`BRK-A`)
+
+# Use get() to assign the BRK-A data to an object named BRK.A
+BRK.A <- get("BRK-A")
+
+```
+
+When downloading data for a single symbol only, set `auto.assign = FALSE` in `getSymbols()`. That enables direct assignment of the output to a syntactically valid name.
+
+You may also want to convert the column names to syntactically valid names, which is necessary in order to use the data in functions that expect column names to be syntactically valid.
+```{r, cache=TRUE}
+# Create BRK.A object
+BRK.A <- getSymbols('BRK-A', auto.assign = FALSE)
+
+# Set BRK.A column names to syntactically valid names
+col_names <- paste("BRK.A", 
+                          c("Open", "High", "Low", "Close", "Volume", "Adjusted"),
+                          sep=".")
+
+colnames(BRK.A) <- col_names
+
+# Another option: use make.names:
+col_names <- colnames(BRK.A)
+colnames(BRK.A) <- make.names(col_names)
+
+# Shanghai composie
+sse <- getSymbols("000001.SS", auto.assign = FALSE) #Shanghai index
+```
+## Creating valid names for multiple instruments
+
+If you want to download data for a lot symbols that are not syntactically valid names, or symbols that have names that conflict with other R variable names, use `setSymbolLookup()` to create a mapping between the instrument symbol and the name of the R object.
+
+An example of a name that conflicts is the symbol for AT&T's stock, T, which is often used as a short form for the logical value TRUE.
+
+To change the name of a given symbol, arguments must be passed to `setSymbolLookup()` as a list, like so: `setSymbolLookup(NEW_NAME = list(name = "OLD_NAME"))`.
+```{r}
+# Set name for BRK-A to BRK.A
+setSymbolLookup(BRK.A = list(name = "BRK-A"))
+
+# Set name for T (AT&T) to ATT
+setSymbolLookup(ATT = list(name = "T"))
+
+
+# Load BRK.A and ATT data
+getSymbols(c("BRK.A", "ATT"))
+```
+
+## Create a zero-width xts object with a regular index
+
+In order to create regular data from an irregular data set, the first thing you need is a regular sequence of date-times that span the dates of your irregular data set. A "regular" sequence of date-times has equally-spaced time points.
+
+Below, the irregular_xts object is used to create a zero-width xts object that has a regular daily index. A zero-width xts object has an index of date-times, but no data columns.
+```{r, eval=FALSE}
+# Extract the start date of the series
+start_date <- start(irregular_xts)
+
+# Extract the end date of the series
+end_date <- end(irregular_xts)
+
+# Create a regular date sequence
+regular_index <- seq(start_date, end_date, by='day')
+
+# Create a zero-width xts object
+regular_xts <- xts(order.by = regular_index)
+```
+
+## Merge irregular data with zero-width xts object with regular time index
+
+When you create a regular series from an irregular series, the result usually has missing values (NA) because the irregular data does not have a value for all observations in the regular index. Here's how to handle them:
+
+```{r, eval=FALSE}
+# Merge irregular_xts and regular_xts
+merged_xts <- merge(irregular_xts, regular_xts)
+
+# Look at the first few rows of merged_xts
+head(merged_xts)
+
+# Use the fill argument to fill NA with their previous value
+merged_filled_xts <- merge(irregular_xts, regular_xts, fill = na.locf)
+
+# Look at the first few rows of merged_filled_xts
+head(merged_filled_xts)
+```
+## Aggregate daily series to monthly, convert index to yearmon, merge with monthly series
+
+Sometimes you may have two series with the same periodicity, but that use different conventions to represent a timestamp. For example, the monthly Fed Funds rate from FRED (FEDFUNDS) is the average of all the days in the month, but the first day of the month is used for the timestamp.
+
+If you aggregate the daily Fed Funds rate from FRED (DFF), the timestamps of the aggregate object will likely be the last day of the month. If you then try to merge FEDFUNDS with the monthly aggregate of DFF, the result will have a lot of NA because the timestamps representing the month are the first and last days of the month, respectively.
+
+The yearmon class from the zoo package can help solve this problem. 
+```{r, cache = TRUE}
+getSymbols(c("FEDFUNDS", "DFF"), src = "FRED")
+
+# Aggregate DFF to monthly
+monthly_fedfunds <- apply.monthly(DFF, mean, na.rm = TRUE)
+
+# Convert index to yearmon
+index(monthly_fedfunds) <- as.yearmon(index(monthly_fedfunds))
+
+
+# Merge FEDFUNDS with the monthly aggregate
+merged_fedfunds <- merge(FEDFUNDS, monthly_fedfunds)
+
+# Look at the first few rows of the merged object
+head(merged_fedfunds)
+```
+
+Sometimes you may not be able to use convenience classes like `yearmon` to represent timestamps. In that case, you'll need to manually align merged data to the timestamp representation you prefer. The idea is to merge the lower-frequency data with the aggregate data, then use `na.locf()` to fill the missing values forward (or backward, using `fromLast = TRUE`). Then you can subset the result of the `na.locf()` call using the index of the object with the representation you prefer.
+
+```{r, cache = TRUE}
+# Fill NA forward
+merged_fedfunds_locf <- na.locf(merged_fedfunds)
+
+# Extract index values containing last day of month
+aligned_last_day <- merged_fedfunds_locf[index(monthly_fedfunds)]
+head(aligned_last_day)
+
+# Fill NA backward
+merged_fedfunds_locb <- na.locf(merged_fedfunds, fromLast = TRUE)
+
+# Extract index values containing first day of month
+aligned_first_day <- merged_fedfunds_locb[index(FEDFUNDS)]
+head(aligned_first_day)
+```
+### General aggregation
+
+Sometimes you may need to aggregate in a more general way. Below, we aggregate daily data to weekly, but with weeks ending on Wednesdays. This is often done in stock market research papers to avoid some of the intra-week seasonality.
+
+You can do many different types of aggregations by using `period.apply()` and supplying your own end points (versus using `endpoints()`). Recall that `endpoints()` returns the locations of the last observation in the period specified by its `on` argument, and the result always starts with a zero and ends with total number of observations. The end points you pass to `period.apply()` must follow this convention.
+
+```{r}
+# Extract index weekdays
+index_weekdays <- .indexwday(DFF)
+head(index_weekdays)
+
+# Find locations of Wednesdays
+wednesdays <- which(index_weekdays == 3)
+
+# Create custom end points
+end_points <- c(0, wednesdays, length(DFF))
+
+# Calculate weekly mean using custom end points
+weekly_mean <- period.apply(DFF, end_points, mean)
+head(weekly_mean)
+```
+
+### Combining data that have timezones
+xts objects always store the index as seconds since the epoch (midnight, 1970-01-01) in the UTC timezone.
+
+When you merge two (or more) xts objects, the merge will be performed using the underlying index (in UTC) and the resulting object will have the timezone of the first object passed to `merge()`.
+`
+```{r, eval=FALSE}
+# Create merged object with a Europe/London timezone
+tz_london <- merge(london, chicago)
+
+# Create merged object with a America/Chicago timezone
+tz_chicago <- merge(chicago, london)
+
+
+```
+### Making irregular intraday-day data regular
+
+We saw previously how to create a regular daily series from irregular daily data by merging a zero-width xts object with the irregular data. We can do the same thing with irregular intra-day data.
+
+One difficulty with intra-day financial data is that it often does not span a full 24 hour period. Most markets are usually closed at least part of the day. This example will assume markets open at 9AM and close at 4PM Monday through Friday.
+
+Also, your irregular data may not contain an observation exactly at the market open and/or close. In that case, you wouldn't be able to use `start()` and `end()` like you could for daily data. In order to create a regular date-time sequence, you will need to manually specify the start and end date-times when creating the regular date-time sequence.
+
+The regular date-time sequence will include observations when the markets are closed, but you can use xts' time-of-day subsetting to keep only observations that occur when the market is open.
+```{r, eval=FALSE}
+# Create a regular date-time sequence
+regular_index <- seq(as.POSIXct("2010-01-04 09:00"), as.POSIXct("2010-01-08 16:00"), by = "30 min")
+
+# Create a zero-width xts object
+regular_xts <- xts(x = NULL, order.by = regular_index)
+
+# Merge irregular_xts and regular_xts, filling NA with their previous value
+merged_xts <- merge(irregular_xts, regular_xts, fill=na.locf)
+
+# Subset to trading day (9AM - 4PM)
+trade_day <- merged_xts['T09:00/T16:00']
+```
+### Fill missing values by trading day
+
+The example above carried the last observation of the prior day forward into the first observation of the following day. Sometimes you may need to start each day without any value from the previous trading day.
+
+This example shows how to fill missing values by trading day, without using the prior day's final value. We follow the split-lapply-rbind paradigm.
+
+Recall that the `do.call(rbind, ...)` syntax allows you to pass a list of objects to `rbind()` instead of having to type all their names by hand.
+
+`x_split <- split(x, f = "months")`
+`x_list <- lapply(x_split, cummax)`
+`x_list_rbind <- do.call(rbind, x_list)`
+
+```{r, eval=FALSE}
+# Split trade_day into days
+daily_list <- split(trade_day , f = "days")
+
+# Use lapply to call na.locf for each day in daily_list
+daily_filled <- lapply(daily_list, FUN = na.locf)
+
+# Use do.call to rbind the results
+filled_by_trade_day <- do.call(rbind, daily_filled)
+```
+### Aggregate irregular intraday-day data
+
+Intraday data can often be massive. It's common to have hundreds of thousands of observations per day, millions per month, and hundreds of millions per year (per instrument!). These data sets often need to be aggregated before you can work with them.
+
+We can use `endpoints()`, `period.apply()`, and `to.period()` to aggregate daily data. In this example, we use `to.period()` to aggregate intraday data to an OHLC series. You will often need to specify the period and k arguments to `to.period()` when using it with intraday data.
+
+```{r, eval=FALSE}
+# Convert raw prices to 5-second prices
+xts_5sec <- to.period(intraday_xts, period = "seconds", k = 5)
+
+# Convert raw prices to 10-minute prices
+xts_10min <- to.period(intraday_xts, period = "minutes", k = 10)
+
+# Convert raw prices to 1-hour prices
+xts_1hour <- to.period(intraday_xts, period = "hours", k = 1)
+```
+### Import well-formatted OHLC daily data from text file
+
+Sometimes you need to import data from other software, and it is often easiest to write the data to CSV because almost all software can write data to a text file.
+
+You can use `getSymbols()` to import the CSV if the data are well-formatted. In this case, *well-formatted* means the file contains data for a single instrument with date, open, high, low, close, volume, and adjusted close columns, in that order. This is the same format as `getSymbols()` returns when you download data from Yahoo Finance or Google Finance.
+
+`getSymbols()` allows you to use a directory of CSV files as a source (like Yahoo Finance and FRED). Below we show how to load data from a local CSV file. 
+```{r, eval=FALSE}
+# Load AMZN.csv
+getSymbols("AMZN", src = "csv")
+
+```
+### Import data from text file
+
+When data aren't well-formatted, use the zoo package which provides several functions for importing text files (with just about any format) as zoo objects. The main function is `read.zoo()`, which is an interface to `read.table()`. Since the xts class extends zoo, you can easily convert the result of `read.zoo()` into an xts object by using `as.xts()`.
+
+Here's how to use `read.zoo()` to import local CSV data.
+```{r, eval=FALSE}
+# Import AMZN.csv using read.zoo
+amzn_zoo <- read.zoo("AMZN.csv", sep = ",", header = TRUE)
+
+# Convert to xts
+amzn_xts <- as.xts(amzn_zoo)
+
+```
+### Handle date and time in separate columns
+
+Sometimes you may have intraday data in a text file where the date and time values are in separate columns. It's simple to import data from this type of file using `read.zoo()`. Without `read.zoo()`, importing this type of file into an xts/zoo object would involve multiple steps.
+
+`read.zoo()` has an index.column argument that allows you to specify the name or number of the column(s) that contain the index data. That's all you need to do if the date and time are specified in the standard format (`"%Y-%m-%d"` for date, and `"%H:%M:%S"` for time).
+Here's how to import this sort of data:
+
+```{r, eval=FALSE}
+# Read data with read.csv
+une_data <- read.csv("UNE.csv", nrows = 5)
+
+# Look at the structure of une_data
+str(une_data)
+
+# Read data with read.zoo, specifying index columns
+une_zoo <- read.zoo("UNE.csv", index.column = c("Date", "Time"), sep = ",", header =TRUE)
+
+# Look at first few rows of data
+head(une_zoo)
+```
+### Reading text file that contains multiple instruments
+
+You can use `read.zoo()` to read data from text files with multiple instruments. This time we use its `split` argument, which allows you to specify the name or number of the columns(s) that contain the variables that identify unique observations.
+
+```{r, eval=FALSE}
+# Read data with read.csv
+two_symbols_data <- read.csv("two_symbols.csv", nrows = 5)
+
+# Look at the structure of two_symbols_data
+str(two_symbols_data)
+
+# Read data with read.zoo, specifying index columns
+two_symbols_zoo <- read.zoo("two_symbols.csv", split = c("Symbol", "Type"), sep = ",", header = TRUE)
+
+# Look at first few rows of data
+head(two_symbols_zoo)
+```
+### Missing Values and Corporate Actions
+
+* Adjusted prices account for splits and dividends.   
+* Yahoo provides divident and split adjusted prices as well as raw.  
+* Google provides split adjusted only, as well as raw.  
+* Alpha Vantage provides split and dividend adjusted prices, as well as raw.  
+
+### Handle missing values
+
+Previously we used `na.locf()` to fill missing values with the previous non-missing value. Sometimes simply carrying the previous value forward isn't appropriate. In those cases, you can interpolate a value instead. Here, we explore two interpolation methods: linear and spline.
+
+Linear interpolation calculates values that lie on the line between two known data points. This is a good choice if your data are fairly linear (e.g. a series with a strong trend, like GDP).
+
+If your data are not fairly linear, using linear interpolation can lead to large interpolation error. Spline interpolation is more appropriate in this case, because it provides a non-linear approximation using multiple data points.
+
+Filling data via these methods is straightforward using `na.approx()` and `na.splie()`.
+
+```{r,eval=FALSE}
+# fill NA using last observation carried forward
+locf <- na.locf(DGS10)
+
+# fill NA using linear interpolation
+approx <- na.approx(DGS10)
+
+# fill NA using spline interpolation
+spline <- na.spline(DGS10)
+
+# merge into one object
+na_filled <- merge(locf, approx, spline)
+
+# plot combined object
+plot(na_filled, col = c("black", "red", "green"))
+```
+### Visualizing data
+
+Plotting is one of the quickest and easiest ways to spot oddities in data. Whenever you import a new data set, one of the first things you should do is plot the variables to ensure they are reasonable.
+
+Here, we use the `plot()` function to visualize some AAPL data from Yahoo Finance. A stock split in June 2014 caused a huge price change. A stock split is when a company simultaneously increases the number of shares outstanding and decreases the stock price, so that the value of the company remains unchanged. For example, a 2-for-1 stock split would give investors 2 shares for every 1 share they own, but reduce the stock price by 1/2 at the same time.
+
+We also use the quantmod extractor functions, `Cl()` and `Ad()` to access the data in the close and adjusted close columns, respectively. Yahoo Finance provides the adjusted close column, which is a split- and dividend-adjusted version of the close prices. `Ad()` simply extracts the adjusted close column. 
+```{r}
+getSymbols('AAPL')
+# Look at the last few rows of AAPL data
+tail(AAPL)
+
+# Plot close price
+plot(Cl(AAPL))
+
+# Plot adjusted close price
+plot(Ad(AAPL))
+```
+### Cross-referencing sources to clean data
+
+In this exercise, we cross-reference the Yahoo Finance AAPL data with AAPL data from Google Finance. Data from Google Finance is already adjusted for splits, but not dividends like the adjusted close from Yahoo Finance, so the close prices from Google won't align closely with the adjusted close prices from Yahoo Finance.
+
+
+```{r, cache=TRUE}
+aapl_yahoo = getSymbols('AAPL', src='yahoo', auto.assign = FALSE)
+aapl_google = getSymbols('AAPL', src='google', auto.assign = FALSE)
+# Look at first few rows aapl_yahoo
+head(aapl_yahoo)
+
+# Look at first few rows aapl_google
+head(aapl_google)
+
+# Plot difference between Yahoo adjusted close and Google close
+plot(Ad(aapl_yahoo) - Cl(aapl_google))
+
+# Plot difference between volume from Yahoo and Google
+plot(Vo(aapl_yahoo) - Vo(aapl_google))
+```
+### Adjust for stock splits and dividends
+
+Stock splits can create large price changes in historical data. Recall that splits do not change the value of the company. Therefore, in order to calculate historical returns correctly, you need to adjust all historical prices prior to the split.
+
+For the same reason, you also need to adjust all historical prices prior to a dividend payment. Unlike splits, dividends do reduce the company's value, which should cause the price to fall by the amount of the dividend. But the investor's return isn't affected by this price change, because they received the offsetting dividend payment.
+
+In this example, we use the `adjustOHLC()` function to adjust raw historical OHLC (Open, High, Low, Close) prices for splits and dividends, so historical returns can be calculated accurately.
+
+Recall that Yahoo Finance provides the raw prices and an adjusted close column that has been adjusted for splits and dividends. In this exercise, you will use the adjustOHLC() function to adjust raw historical OHLC prices for splits and dividends, so they match the adjusted close column. 
+
+While not necessary to complete this exercise, Yahoo Finance provides an accessible example of the adjusted close calculation, if you're interested in learning more. [link](https://help.yahoo.com/kb/finance/SLN2311.html)
+```{r, cache=TRUE}
+# Look at first few rows of AAPL
+head(AAPL)
+
+# Adjust AAPL for splits and dividends
+aapl_adjusted <- adjustOHLC(AAPL)
+
+# Look at first few rows of aapl_adjusted
+head(aapl_adjusted)
+```
+### Download split and dividend data
+
+`adjustOHLC()` only works for OHLC data. It will not work if you only have close prices. `adjustOHLC()` also does not return any of the split or dividend data it uses.
+
+You will need the dates and values for each split and dividend if you want to adjust a non-OHLC price series, or if you simply want to analyze the raw split and dividend data.
+
+You can download the split and dividend data from Yahoo Finance using the quantmod functions `getSplits()` and `getDividends()`, respectively. Note that the historical dividend data from Yahoo Finance is adjusted for splits. If you want to download unadjusted dividend data, you need to set `split.adjust = FALSE` in your call to `getDividends()`.
+```{r, cache=TRUE}
+# Download AAPL split data
+splits <- getSplits("AAPL")
+
+# Print the splits object
+splits
+
+# Download AAPL dividend data
+dividends <- getDividends("AAPL")
+
+# Look at the first few rows of dividends
+head(dividends)
+
+# Download unadjusted AAPL dividend data
+raw_dividends <- getDividends("AAPL", split.adjust = FALSE)
+
+# Look at the first few rows of raw_dividends
+head(raw_dividends)
+
+```
+### Adjust univariate data for splits and dividends
+
+`adjustOHLC()` only works for OHLC data. If you only have close prices, you can use the `adjRatios()` function to calculate the split and dividend adjustment ratios. The `adjRatios()` function has three arguments: splits, dividends, and close. It returns an xts object with two columns, "Split" and "Div", that contain the split and dividend adjustment ratios, respectively.
+
+`adjRatios()` needs split data in order to calculate the split adjustment ratio. You provide split data via the splits argument. To calculate the dividend adjustment ratio, you need to supply raw dividends and raw prices to `adjRatios()`, using the dividends and close arguments, respectively.
+
+Once you have the split and dividend adjustment ratios, calculating the adjusted price is simple. You just have to multiply the unadjusted price by both the split and dividend adjustment ratios.
+
+```{r, cache=TRUE}
+# Calculate split and dividend adjustment ratios
+ratios <- adjRatios(splits = splits, dividends = raw_dividends, close = Cl(AAPL))
+
+# Calculate adjusted close for AAPL
+aapl_adjusted <- Cl(AAPL) * ratios[, "Split"] * ratios[, "Div"]
+
+# Look at first few rows of Yahoo adjusted close
+head(Ad(AAPL))
+
+# Look at first few rows of aapl_adjusted
+head(aapl_adjusted)
+```
+
+**Remember that you need to back-adjust historical price data every time there is a split or dividend!**
+
