@@ -1,0 +1,83 @@
+---
+title: "Exploratory Data Analysis"
+output: github_document
+---
+
+# Location Estimates 
+
+## Load and inspect data
+```{r}
+path <- file.path('~', 'workspace', 'statistics_for_data_scientists', 'data')
+fname <- 'state.csv'
+state <- read.csv(file=file.path(path, fname))
+head(state)
+```
+
+## Various loction estimates
+
+### Population
+
+```{r}
+# mean
+mean(state[['Population']])
+
+# trimmed mean (exclude top and bottom 10%)
+mean(state[['Population']], trim=0.1)
+
+# median
+median(state[['Population']])
+
+```
+
+### Murder rate
+
+To compute the average murder rate aggregated across all states, we would need to use a weighted mean to account for the different populations in each state.
+
+```{r}
+# weighted mean
+weighted.mean(as.matrix(state[["Murder.Rate"]]), w=state[["Population"]])
+
+# weighted median
+library(matrixStats)
+weightedMedian(as.matrix(state[['Murder.Rate']]), w=state[['Population']])
+```
+
+# Variability Estimates
+
+```{r}
+# Standard deviation
+sd(state[['Population']])
+
+# Interquartile range
+IQR(state[['Population']])
+
+# Median absolute deviation from the median (MAD)
+mad(state[['Population']])
+```
+# Exploring the Distribution
+
+## Boxplots
+```{r}
+boxplot(state[["Population"]]/1000000, ylab="Population (millions)")
+```
+The top and bottom of the box are the 75th and 25th percentiles, respectively. The median is shown by the horizontal line in the box. The dashed lines, referred to as whiskers, extend from the top and bottom to indicate the range for the bulk of the data. There are many variations of a boxplot, but the R function extends the whiskers to the furthest point beyond the box, or 1.5 times the IQR (other software may use a different rule). Any data outside of the whiskers is plotted as single points, and may be flagged as outliers.
+
+## Frequency tables and histograms
+A frequency table of a variable divides up the variable range into equally spaced segments, and tells us how many values fall in each segment.
+```{r}
+breaks <- seq(from=min(state[["Population"]]), to=max(state[["Population"]]), length=11)
+pop_freq <- cut(state[["Population"]], breaks=breaks, right=TRUE, include.lowest = TRUE)
+table(pop_freq)
+```
+Both frequency tables and percentiles summarize the data by creat ing bins. In general, quartiles and deciles will have the same count in each bin (equal-count bins), but the bin sizes will be different. The frequency table, by contrast, will have different counts in the bins (equal-size bins).
+
+A histogram is a way to visualize a frequency table, with bins on the x-axis and data count on the y-axis.
+```{r}
+hist(state[["Population"]], breaks=breaks)
+```
+## Density estimates
+
+
+Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Ctrl+Alt+I*.
+
+When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Ctrl+Shift+K* to preview the HTML file).
